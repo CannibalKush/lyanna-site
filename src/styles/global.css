@@ -167,14 +167,8 @@ em { color: var(--accent); font-style: normal; }
 .game-frame { border: 1px solid var(--game-line); background: #101311; }
 .frame-top, .frame-bottom { min-height: 42px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; color: var(--game-muted); font: 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
 .frame-top { border-bottom: 1px solid var(--game-line); }.frame-bottom { border-top: 1px solid var(--game-line); }
-.game-scene { height: min(54vw, 570px); min-height: 360px; position: relative; overflow: hidden; background: linear-gradient(165deg, #1c2720 0%, #293b2e 55%, #3c5842 100%); }
-.scene-sun { width: 80px; height: 80px; position: absolute; top: 16%; right: 18%; border-radius: 50%; background: var(--game-accent); box-shadow: 0 0 0 24px rgba(201, 216, 107, .08), 0 0 70px rgba(201, 216, 107, .25); }
-.scene-moon { width: 3px; height: 3px; position: absolute; top: 18%; left: 20%; border-radius: 50%; background: var(--game-ink); box-shadow: 38px 35px rgba(217, 223, 207, .55), 112px 12px rgba(217, 223, 207, .3), 206px 70px rgba(217, 223, 207, .45), 390px 22px rgba(217, 223, 207, .35); }
-.scene-hill { position: absolute; bottom: -22%; width: 115%; height: 68%; border-radius: 50% 50% 0 0; transform: rotate(-4deg); }.hill-back { left: -10%; background: #24372b; }.hill-front { right: -12%; bottom: -28%; background: #34523d; transform: rotate(5deg); }
-.scene-ground { position: absolute; right: 12%; bottom: 14%; width: 25%; height: 1px; background: rgba(217, 223, 207, .35); transform: rotate(-5deg); }
-.scene-orb { position: absolute; width: 10px; height: 10px; border: 1px solid var(--game-accent); border-radius: 50%; box-shadow: 0 0 0 8px rgba(201, 216, 107, .06); }.orb-one { left: 25%; top: 62%; }.orb-two { left: 34%; top: 48%; transform: scale(.6); }.orb-three { right: 27%; top: 58%; transform: scale(.8); }
-.scene-player { position: absolute; left: 50%; bottom: 24%; width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid rgba(217, 223, 207, .7); border-radius: 50%; transform: translateX(-50%); }.scene-player span { width: 11px; height: 11px; border-radius: 50%; background: var(--game-accent); box-shadow: 0 0 24px rgba(201, 216, 107, .6); }
-.scene-caption { position: absolute; left: 50%; bottom: 8%; margin: 0; color: rgba(217, 223, 207, .7); font: 10px var(--mono); letter-spacing: .05em; text-transform: uppercase; transform: translateX(-50%); white-space: nowrap; }
+.game-runtime { height: min(54vw, 570px); min-height: 360px; overflow: hidden; background: #101311; }
+.game-runtime iframe { width: 100%; height: 100%; display: block; border: 0; }
 .game-notes { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; padding-top: 72px; }.game-notes .kicker { color: var(--game-accent); }.note-copy { max-width: 470px; margin: 0; color: var(--game-ink); font-size: 20px; letter-spacing: -.03em; line-height: 1.35; }.tech-list { margin: 0; border-top: 1px solid var(--game-line); }.tech-list div { display: flex; justify-content: space-between; gap: 20px; padding: 13px 0; border-bottom: 1px solid var(--game-line); }.tech-list dt, .tech-list dd { margin: 0; font: 11px var(--mono); text-transform: uppercase; }.tech-list dt { color: var(--game-muted); }.tech-list dd { color: var(--game-ink); }
 
 @media (max-width: 640px) {
@@ -193,8 +187,7 @@ em { color: var(--accent); font-style: normal; }
   .game-intro .kicker { margin-bottom: 32px; }
   .game-lede { margin-top: 28px; }
   .game-actions { align-items: flex-start; flex-direction: column; gap: 18px; margin-top: 32px; }
-  .game-scene { min-height: 300px; height: 72vw; }
-  .scene-caption { font-size: 8px; }
+  .game-runtime { min-height: 300px; height: 72vw; }
   .game-notes { display: block; padding-top: 52px; }
   .tech-list { margin-top: 48px; }
 }

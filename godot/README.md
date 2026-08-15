@@ -20,3 +20,12 @@ Run the main scene.
 - No external assets.
 
 The project uses the GL Compatibility renderer. This keeps web and mobile export options open.
+
+The checked-in Web export lives at `public/godot/` and is embedded on `/game`.
+
+To regenerate it after changing the Godot project:
+
+```sh
+mkdir -p public/godot
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path godot --export-release Web "$PWD/public/godot/index.html"
+```
