@@ -17,6 +17,11 @@ pnpm-debug.log*
 .env
 .env.production
 
+# Godot
+.godot/
+export.cfg
+export_presets.cfg
+
 # macOS-specific files
 .DS_Store
 

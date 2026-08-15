@@ -1,0 +1,74 @@
+---
+import '../styles/global.css';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="A small 2D game project in progress." />
+    <meta name="theme-color" content="#171a18" />
+    <link rel="canonical" href="https://www.lyanna.dev/game" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.lyanna.dev/game" />
+    <meta property="og:title" content="game / lyanna.dev" />
+    <meta property="og:description" content="A small 2D game project in progress." />
+    <title>game / lyanna.dev</title>
+  </head>
+  <body class="game-page">
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="Lyanna home">lyanna<span>.</span>dev</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a class="active" href="/game" aria-current="page">game</a>
+      </nav>
+      <span class="status"><i aria-hidden="true"></i>prototype</span>
+    </header>
+
+    <main class="game-shell">
+      <section class="game-intro">
+        <p class="kicker">godot 4 / 2d / early build</p>
+        <h1>A little world<br /><em>is waking.</em></h1>
+        <p class="game-lede">A small incremental game about tending something strange, patient, and alive.</p>
+        <div class="game-actions">
+          <a class="contact" href="https://github.com/CannibalKush/lyanna-site/tree/main/godot" target="_blank" rel="noreferrer">View the skeleton <span aria-hidden="true">↗</span></a>
+          <span class="build-label">build 0.0.1 / not playable yet</span>
+        </div>
+      </section>
+
+      <section class="game-frame" aria-label="Game preview">
+        <div class="frame-top"><span>pocket field</span><span>day 001</span></div>
+        <div class="game-scene">
+          <div class="scene-sun"></div>
+          <div class="scene-moon"></div>
+          <div class="scene-hill hill-back"></div>
+          <div class="scene-hill hill-front"></div>
+          <div class="scene-orb orb-one"></div>
+          <div class="scene-orb orb-two"></div>
+          <div class="scene-orb orb-three"></div>
+          <div class="scene-player"><span></span></div>
+          <div class="scene-ground"></div>
+          <p class="scene-caption">the first seed has not been planted</p>
+        </div>
+        <div class="frame-bottom"><span>◌ idle</span><span>prototype scene / placeholder art</span></div>
+      </section>
+
+      <section class="game-notes">
+        <div>
+          <p class="kicker">the shape of it</p>
+          <p class="note-copy">Explore a tiny place. Gather light. Make small changes. Return later and find that something continued without you.</p>
+        </div>
+        <dl class="tech-list">
+          <div><dt>engine</dt><dd>Godot 4</dd></div>
+          <div><dt>format</dt><dd>2D / incremental</dd></div>
+          <div><dt>status</dt><dd>scaffolded</dd></div>
+        </dl>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>lyanna.dev / game</span>
+      <a href="/">back home</a>
+    </footer>
+  </body>
+</html>

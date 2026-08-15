@@ -21,6 +21,8 @@ The static output goes to `dist/`.
 
 ## Structure
 
-- `src/pages/index.astro` contains the page.
-- `src/styles/global.css` contains the design tokens and page styles.
+- `src/pages/index.astro` contains the placeholder homepage.
+- `src/pages/game.astro` contains the game project page.
+- `src/styles/global.css` contains the shared design tokens and page styles.
+- `godot/` contains the Godot 4 2D prototype skeleton.
 - `public/` contains static assets.
