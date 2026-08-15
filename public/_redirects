@@ -1,1 +1,3 @@
 /game /games/ego-incremental 308
+/game/ /games/ego-incremental 308
+/game/* /games/ego-incremental 308
