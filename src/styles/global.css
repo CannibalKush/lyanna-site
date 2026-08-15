@@ -9,7 +9,7 @@
 }
 
 * { box-sizing: border-box; }
-html { min-width: 320px; background: var(--background); }
+html { background: var(--background); }
 body {
   min-height: 100svh;
   margin: 0;
