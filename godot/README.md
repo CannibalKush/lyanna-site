@@ -26,7 +26,7 @@ The checked-in Web export lives at `public/godot/` and is embedded on `/game`.
 To regenerate it after changing the Godot project:
 
 ```sh
-mkdir -p public/godot
-/Applications/Godot.app/Contents/MacOS/Godot --headless --path godot --export-release Web "$PWD/public/godot/index.html"
-gzip -9 -c public/godot/index.wasm > /tmp/index.wasm.gz && mv /tmp/index.wasm.gz public/godot/index.wasm
+mkdir -p public/godot/v2
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path godot --export-release Web "$PWD/public/godot/v2/index.html"
+brotli -q 11 -c public/godot/v2/index.wasm > /tmp/index.wasm.br && mv /tmp/index.wasm.br public/godot/v2/index.wasm
 ```
