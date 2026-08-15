@@ -4,4 +4,5 @@
 /godot/index.wasm
   Content-Type: application/wasm
   Content-Encoding: gzip
+  Cache-Control: no-transform, public, max-age=31536000, immutable
   Vary: Accept-Encoding

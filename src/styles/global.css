@@ -163,6 +163,9 @@ em { color: var(--accent); font-style: normal; }
 .game-actions { display: flex; align-items: baseline; gap: 28px; margin-top: 36px; grid-column: 1 / -1; }
 .game-page .contact { border-color: var(--game-accent); color: var(--game-ink); }
 .game-page .contact span { color: var(--game-accent); }
+.runtime-link { color: var(--game-muted); font: 11px var(--mono); text-decoration: none; text-transform: uppercase; letter-spacing: .04em; }
+.runtime-link span { color: var(--game-accent); }
+.runtime-link:hover { color: var(--game-ink); }
 .build-label { color: var(--game-muted); font: 10px var(--mono); text-transform: uppercase; letter-spacing: .06em; }
 .game-frame { border: 1px solid var(--game-line); background: #101311; }
 .frame-top, .frame-bottom { min-height: 42px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; color: var(--game-muted); font: 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
