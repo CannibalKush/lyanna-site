@@ -28,4 +28,5 @@ To regenerate it after changing the Godot project:
 ```sh
 mkdir -p public/godot
 /Applications/Godot.app/Contents/MacOS/Godot --headless --path godot --export-release Web "$PWD/public/godot/index.html"
+gzip -9 -c public/godot/index.wasm > /tmp/index.wasm.gz && mv /tmp/index.wasm.gz public/godot/index.wasm
 ```
