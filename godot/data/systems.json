@@ -3,7 +3,7 @@
     {
       "id": "gathering",
       "name": "Gathering",
-      "glyph": "𒀭",
+      "glyph": "[G]",
       "tone": "reed",
       "description": "Begin with what the river leaves behind. Small things become foundations.",
       "currency": "materials",
@@ -28,7 +28,7 @@
     {
       "id": "meditation",
       "name": "Meditation",
-      "glyph": "☉",
+      "glyph": "[M]",
       "tone": "gold",
       "description": "Sit beneath the reed awning. Attention is the first wealth.",
       "currency": "calm",
@@ -48,7 +48,7 @@
     {
       "id": "incantation",
       "name": "Incantation",
-      "glyph": "𒂊",
+      "glyph": "[I]",
       "tone": "violet",
       "description": "Give a name to what is not yet understood. Words change the shape of matter.",
       "currency": "focus",
@@ -68,7 +68,7 @@
     {
       "id": "bartering",
       "name": "Bartering",
-      "glyph": "𒆠",
+      "glyph": "[B]",
       "tone": "blue",
       "description": "The market is another kind of temple. Everything has a name and a price.",
       "currency": "silver",

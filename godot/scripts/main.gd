@@ -51,6 +51,9 @@ var repeat_button: Button
 var toast_label: Label
 var currency_label: Label
 var day_label: Label
+var overall_label: Label
+var overall_bar: ProgressBar
+var menu_button: Button
 
 func _ready() -> void:
 	_load_content()
@@ -102,6 +105,7 @@ func _load_state() -> void:
 	state = {
 		"version": 1,
 		"day": 1,
+		"overall_xp": 0,
 		"currencies": {"reeds": 0, "water": 0, "clay": 0, "calm": 0, "focus": 8, "insight": 0, "silver": 0, "reputation": 0},
 		"systems": {},
 		"effects": {},
@@ -168,6 +172,9 @@ func _build_menu() -> void:
 	var note := _label("Gather. Attend. Speak. Exchange.\nThe old gods prefer patient people.", 12, MUTED)
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(note)
+	var reset := _button("RESET PROGRESS", CLAY, BG)
+	reset.pressed.connect(_reset_progress)
+	box.add_child(reset)
 
 func _build_game() -> void:
 	game_layer = Control.new()
@@ -185,7 +192,18 @@ func _build_game() -> void:
 	top_box.add_child(top_space)
 	currency_label = _label("", 12, MUTED)
 	top_box.add_child(currency_label)
-
+	menu_button = _button("MENU", MUTED, BG)
+	menu_button.custom_minimum_size = Vector2(72, 34)
+	menu_button.pressed.connect(_open_menu)
+	top_box.add_child(menu_button)
+	overall_label = _label("PATH XP  /  0", 10, REED)
+	overall_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	game_layer.add_child(overall_label)
+	overall_bar = ProgressBar.new()
+	overall_bar.show_percentage = false
+	overall_bar.add_theme_stylebox_override("background", _style(Color("#302c2b"), Color.TRANSPARENT, 0, 6))
+	overall_bar.add_theme_stylebox_override("fill", _style(CLAY, Color.TRANSPARENT, 0, 6))
+	game_layer.add_child(overall_bar)
 	nav_panel = PanelContainer.new()
 	nav_panel.add_theme_stylebox_override("panel", _style(PANEL, LINE, 1, 12))
 	game_layer.add_child(nav_panel)
@@ -258,6 +276,33 @@ func _build_reward_panel() -> void:
 	reward_box.add_theme_constant_override("separation", 8)
 	reward_panel.add_child(reward_box)
 
+func _open_menu() -> void:
+	_show_menu()
+
+func _reset_progress() -> void:
+	state = {
+		"version": 1,
+		"day": 1,
+		"overall_xp": 0,
+		"currencies": {"reeds": 0, "water": 0, "clay": 0, "calm": 0, "focus": 8, "insight": 0, "silver": 0, "reputation": 0},
+		"systems": {},
+		"effects": {},
+		"unlocked_activities": {"gathering:reeds": true, "gathering:water": true}
+	}
+	for raw_system in systems:
+		var system: Dictionary = raw_system
+		state.systems[system.id] = {"level": 1, "xp": 0, "actions": 0}
+	_ensure_default_unlocks()
+	active_system_id = "gathering"
+	active_task = {}
+	last_activity = {}
+	repeat_enabled = false
+	pending_reward = {}
+	_save_state()
+	_refresh_navigation()
+	_refresh_system()
+	_show_menu()
+
 func _start_game() -> void:
 	_show_game()
 	_select_system("gathering")
@@ -306,7 +351,7 @@ func _refresh_system() -> void:
 		var key := "%s:%s" % [active_system_id, activity.id]
 		var unlocked := bool(state.unlocked_activities.get(key, false))
 		var can_start := unlocked and _can_afford(activity)
-		var label_text := "%s   ·   %s" % [activity.name, "READY" if can_start else "NEEDS MATERIALS"]
+		var label_text := "%s  |  %s  |  %s" % [activity.name, _format_flow(activity), "READY" if can_start else "NEEDS MATERIALS"]
 		var button := _button(label_text, INK if unlocked else MUTED, PANEL)
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.disabled = not can_start or not pending_reward.is_empty()
@@ -325,6 +370,10 @@ func _update_world() -> void:
 		return
 	var currencies: Dictionary = state.currencies
 	currency_label.text = "R %02d  ·  W %02d  ·  C %02d  ·  M %02d  ·  F %02d  ·  S %02d" % [currencies.reeds, currencies.water, currencies.clay, currencies.calm, currencies.focus, currencies.silver]
+	var path_xp: int = int(state.get("overall_xp", 0))
+	var path_level: int = path_xp / 100
+	overall_label.text = "PATH XP  /  RANK %02d  /  %03d%%" % [path_level, path_xp % 100]
+	overall_bar.value = float(path_xp % 100)
 	day_label.text = "DAY %02d" % int(state.day)
 	if not active_task.is_empty():
 		var activity: Dictionary = active_task.activity
@@ -365,6 +414,7 @@ func _finish_activity() -> void:
 		_add_currency(reward.currency, amount)
 	var xp_gain: int = maxi(1, roundi(float(activity.xp) * _xp_multiplier(system_id)))
 	system_state.xp = int(system_state.xp) + xp_gain
+	state["overall_xp"] = int(state.get("overall_xp", 0)) + xp_gain
 	system_state.actions = int(system_state.actions) + 1
 	var levelled := false
 	while int(system_state.xp) >= _xp_needed(int(system_state.level)):
@@ -418,6 +468,19 @@ func _choose_reward(choice: Dictionary) -> void:
 	_save_state()
 	_refresh_navigation()
 	_refresh_system()
+
+func _format_flow(activity: Dictionary) -> String:
+	var inputs: Array[String] = []
+	for raw_cost in activity.get("costs", []):
+		var cost: Dictionary = raw_cost
+		inputs.append("%d %s" % [int(cost.amount), str(cost.currency).to_upper()])
+	if inputs.is_empty():
+		inputs.append("TIME")
+	var outputs: Array[String] = []
+	for raw_reward in activity.get("rewards", []):
+		var reward: Dictionary = raw_reward
+		outputs.append("%d %s" % [int(reward.amount), str(reward.currency).to_upper()])
+	return "IN %s -> OUT %s" % [", ".join(inputs), ", ".join(outputs)]
 
 func _get_system(system_id: String) -> Dictionary:
 	for raw_system in systems:
@@ -496,7 +559,12 @@ func _layout() -> void:
 	var top_child := top_bar.get_child(0) as Control
 	if top_child:
 		top_child.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var top_y: float = margin + top_height + 14.0
+	var top_y: float = margin + top_height + 42.0
+	if overall_bar:
+		overall_bar.position = Vector2(margin, margin + top_height + 8.0)
+		overall_bar.size = Vector2(width - margin * 2.0, 10.0)
+		overall_label.position = Vector2(margin, margin + top_height - 4.0)
+	overall_label.size = Vector2(width - margin * 2.0, 18.0)
 	var compact_width: bool = width < 800.0
 	var short_screen: bool = height < 560.0
 	var desktop_layout: bool = not compact_width or (width >= 640.0 and short_screen)
