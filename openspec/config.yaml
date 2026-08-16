@@ -1,0 +1,25 @@
+schema: spec-driven
+
+context: |
+  Project: Ego Incremental, a browser-playable Godot 4 incremental game.
+  Site: Astro static shell on Cloudflare Pages.
+  Game: Godot 4 Web export, Compatibility renderer, responsive UI.
+  Current prototype: task selection, timed work, task XP, resources, and a day reset.
+  Engineering rule: keep game content data-driven and keep the browser client untrusted.
+  Delivery rule: build and verify locally before any production deployment.
+  Security rule: never describe a client-side game as unhackable.
+  Style rule: use short, direct documentation and explicit non-goals.
+
+rules:
+  proposal:
+    - State the player problem and the design thesis.
+    - Include non-goals and open questions.
+    - Separate prototype scope from later multiplayer scope.
+  design:
+    - Record decisions, alternatives, and rejected approaches.
+    - Define trust boundaries before leaderboard or social features.
+    - Prefer data-driven content over hard-coded task logic.
+  tasks:
+    - Group work into vertical slices.
+    - Mark security and validation tasks before competitive features.
+    - Include a verification command for each implementation phase.
