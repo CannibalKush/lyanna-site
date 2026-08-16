@@ -112,13 +112,20 @@ The browser client SHALL not be treated as authoritative for ranked progress.
 - THEN the server SHALL validate the command against authoritative state and definitions
 - AND the server SHALL grant rewards only after validation
 
-### Requirement: Community safety
+### Requirement: Future competitive boundary
 
-Community systems SHALL start with asynchronous and bounded interactions.
+The first release SHALL exclude public community features.
+The simulation SHALL expose structured commands and state transitions that can support future server validation.
 
-#### Scenario: Share a build
+#### Scenario: Offline progress
 
-- GIVEN the player exports a build
-- WHEN another player imports it
-- THEN the game SHALL validate identifiers, values, and unlocks
-- AND the import SHALL not execute arbitrary code
+- GIVEN the player uses local progress
+- WHEN the player completes a run
+- THEN the run SHALL remain unranked
+
+#### Scenario: Future ranked result
+
+- GIVEN a future ranked mode uses fixed challenge rules
+- WHEN the player submits a result
+- THEN a server SHALL validate the command history and state transitions
+- AND the server SHALL calculate the ranked result

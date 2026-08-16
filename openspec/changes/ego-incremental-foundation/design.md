@@ -312,31 +312,14 @@ Do not add competitive features until this boundary exists.
 
 ## 11. Community interactions
 
-Community features should support comparison, teaching, and shared discovery.
+Community features are deferred from the first build.
+The game SHALL not ship chat, guilds, trading, or public leaderboards in the first slice.
 
-### Early community features
+The simulation SHALL still produce structured commands, events, and state transitions.
+Those records can support future server validation without trusting client totals.
 
-- Shareable builds.
-- Shareable progression paths.
-- Fixed challenge runs.
-- Seasonal goals.
-- Public milestone cards.
-- Opt-in leaderboards.
-
-### Later community features
-
-- Guild research projects.
-- Shared asynchronous goals.
-- Player-authored contracts.
-- Market listings.
-- Trading.
-- Cooperative world events.
-
-Avoid direct chat in the first community slice.
-Moderation, abuse reports, identity, and privacy become core systems.
-
-Use asynchronous interaction first.
-It fits an incremental game and reduces operational cost.
+A future leaderboard SHALL use fixed challenge rules and server-authoritative results.
+Offline progress SHALL remain unranked.
 
 ## 12. Leaderboards
 

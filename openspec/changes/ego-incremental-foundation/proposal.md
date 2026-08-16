@@ -38,16 +38,20 @@ This change defines the long-term foundation and the first vertical slice.
 
 The first vertical slice includes:
 
-- Data-defined tasks.
+- Four initial systems: Gathering, Meditation, Incantation, and Bartering.
+- Data-defined systems and activities.
 - Task XP and levels.
 - Level rewards with player choice.
 - A small directed acyclic progression graph.
-- Distinct resources, silver, insight, and legacy currencies.
+- Distinct system currencies and shared materials.
 - Basic task repetition.
 - A locked automation path.
 - A locked prestige path.
 - Local progress persistence.
-- Testable simulation rules.
+- A simulation boundary that can support future server validation.
+
+Community features are deferred.
+The architecture SHALL preserve enough event and state structure for a future server-authoritative leaderboard.
 
 Later slices may add:
 

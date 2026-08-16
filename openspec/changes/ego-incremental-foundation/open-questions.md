@@ -60,6 +60,17 @@ These questions need decisions before implementation passes Phase 0.
 33. Should Creative Commons assets support the prototype, or should we create original placeholder art first?
 34. Are we comfortable recording asset attribution inside the repository?
 
+## Decisions recorded
+
+- Community features are deferred.
+- Future leaderboards require server authority and fixed challenge rules.
+- The first systems are Gathering, Meditation, Incantation, and Bartering.
+- The visual style is ancient, esoteric, pixel-art-inspired, and responsive.
+- Early play is active.
+- Later play adds queues and automation.
+- System unlocks should feel like revelations.
+- The first prototype should use a living clay-tablet visual metaphor.
+
 ## Recommended defaults
 
 Use these defaults if no decision exists:
