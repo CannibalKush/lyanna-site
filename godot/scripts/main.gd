@@ -3,7 +3,6 @@ extends Control
 ## Content comes from data/systems.json. The interface only sends player intent.
 
 const DATA_PATH := "res://data/systems.json"
-const SAVE_PATH := "user://ego_incremental.json"
 const BG := Color("#100f12")
 const INK := Color("#eee8d4")
 const MUTED := Color("#9c9587")
@@ -87,62 +86,25 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), BG)
 	var tablet := Rect2(18.0, 78.0, maxf(1.0, size.x - 36.0), maxf(1.0, size.y - 96.0))
-	draw_style_box(_style(Color(0.20, 0.16, 0.13, 0.12), Color(0.42, 0.33, 0.22, 0.30), 1, 14), tablet)
+	draw_style_box(UiFactory.style(Color(0.20, 0.16, 0.13, 0.12), Color(0.42, 0.33, 0.22, 0.30), 1, 14), tablet)
 	for index in 22:
 		var x: float = fmod(float(index * 113) + elapsed * (1.0 + float(index % 2)), maxf(1.0, size.x))
 		var y: float = 80.0 + fmod(float(index * 67), maxf(1.0, size.y - 100.0))
 		draw_circle(Vector2(x, y), 1.0 + float(index % 2), Color(0.82, 0.73, 0.38, 0.15))
 
 func _load_content() -> void:
-	var file := FileAccess.open(DATA_PATH, FileAccess.READ)
-	if file == null:
-		return
-	var parsed: Variant = JSON.parse_string(file.get_as_text())
-	if parsed is Dictionary:
-		systems = parsed.get("systems", []) as Array
+	systems = ContentDatabase.load_systems(DATA_PATH)
 
 func _load_state() -> void:
-	state = {
-		"version": 1,
-		"day": 1,
-		"overall_xp": 0,
-		"currencies": {"reeds": 0, "water": 0, "clay": 0, "calm": 0, "focus": 8, "insight": 0, "silver": 0, "reputation": 0},
-		"systems": {},
-		"effects": {},
-		"unlocked_activities": {"gathering:reeds": true, "gathering:water": true}
-	}
-	for raw_system in systems:
-		var system: Dictionary = raw_system
-		state.systems[system.id] = {"level": 1, "xp": 0, "actions": 0}
-	if not FileAccess.file_exists(SAVE_PATH):
-		_ensure_default_unlocks()
-		return
-	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
-	if file == null:
-		return
-	var loaded: Variant = JSON.parse_string(file.get_as_text())
-	if loaded is Dictionary and int(loaded.get("version", 0)) == 1:
-		state = loaded
-	_ensure_default_unlocks()
+	GameState.initialize(systems)
+	state = GameState.data
 
 func _ensure_default_unlocks() -> void:
-	if not state.has("unlocked_activities"):
-		state["unlocked_activities"] = {}
-	for raw_system in systems:
-		var system: Dictionary = raw_system
-		if not _is_system_unlocked(system.id):
-			continue
-		var activities: Array = system.get("activities", []) as Array
-		for index in activities.size():
-			var activity: Dictionary = activities[index]
-			var key := "%s:%s" % [system.id, activity.id]
-			if not state.unlocked_activities.has(key):
-				state.unlocked_activities[key] = index < 1 or system.id == "gathering" and index < 2
+	GameState._ensure_default_unlocks(systems)
+	state = GameState.data
 
 func _save_state() -> void:
-	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	if file:
-		file.store_string(JSON.stringify(state))
+	GameState.save()
 
 func _build_menu() -> void:
 	menu_layer = Control.new()
@@ -153,26 +115,26 @@ func _build_menu() -> void:
 	menu_layer.add_child(center)
 	menu_panel = PanelContainer.new()
 	menu_panel.custom_minimum_size = Vector2(500, 380)
-	menu_panel.add_theme_stylebox_override("panel", _style(PANEL, LINE, 1, 18))
+	menu_panel.add_theme_stylebox_override("panel", UiFactory.style(PANEL, LINE, 1, 18))
 	center.add_child(menu_panel)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 14)
 	menu_panel.add_child(box)
-	box.add_child(_label("THE TABLET REMEMBERS", 12, REED))
-	box.add_child(_label("Ego\nIncremental", 42, INK))
-	var intro := _label("Begin with hunger.\nEnd somewhere stranger.", 18, MUTED)
+	box.add_child(UiFactory.label("THE TABLET REMEMBERS", 12, REED))
+	box.add_child(UiFactory.label("Ego\nIncremental", 42, INK))
+	var intro := UiFactory.label("Begin with hunger.\nEnd somewhere stranger.", 18, MUTED)
 	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(intro)
 	var space := Control.new()
 	space.custom_minimum_size.y = 22
 	box.add_child(space)
-	var start := _button("BEGIN YOUR FIRST DAY", REED, BG)
+	var start := UiFactory.button("BEGIN YOUR FIRST DAY", REED, BG)
 	start.pressed.connect(_start_game)
 	box.add_child(start)
-	var note := _label("Gather. Attend. Speak. Exchange.\nThe old gods prefer patient people.", 12, MUTED)
+	var note := UiFactory.label("Gather. Attend. Speak. Exchange.\nThe old gods prefer patient people.", 12, MUTED)
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(note)
-	var reset := _button("RESET PROGRESS", CLAY, BG)
+	var reset := UiFactory.button("RESET PROGRESS", CLAY, BG)
 	reset.pressed.connect(_reset_progress)
 	box.add_child(reset)
 
@@ -181,86 +143,86 @@ func _build_game() -> void:
 	game_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(game_layer)
 	top_bar = PanelContainer.new()
-	top_bar.add_theme_stylebox_override("panel", _style(PANEL, LINE, 1, 12))
+	top_bar.add_theme_stylebox_override("panel", UiFactory.style(PANEL, LINE, 1, 12))
 	game_layer.add_child(top_bar)
 	var top_box := HBoxContainer.new()
 	top_bar.add_child(top_box)
-	day_label = _label("DAY 01", 13, REED)
+	day_label = UiFactory.label("DAY 01", 13, REED)
 	top_box.add_child(day_label)
 	var top_space := Control.new()
 	top_space.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top_box.add_child(top_space)
-	currency_label = _label("", 12, MUTED)
+	currency_label = UiFactory.label("", 12, MUTED)
 	top_box.add_child(currency_label)
-	menu_button = _button("MENU", MUTED, BG)
+	menu_button = UiFactory.button("MENU", MUTED, BG)
 	menu_button.custom_minimum_size = Vector2(72, 34)
 	menu_button.pressed.connect(_open_menu)
 	top_box.add_child(menu_button)
-	overall_label = _label("PATH XP  /  0", 10, REED)
+	overall_label = UiFactory.label("PATH XP  /  0", 10, REED)
 	overall_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	game_layer.add_child(overall_label)
 	overall_bar = ProgressBar.new()
 	overall_bar.show_percentage = false
-	overall_bar.add_theme_stylebox_override("background", _style(Color("#302c2b"), Color.TRANSPARENT, 0, 6))
-	overall_bar.add_theme_stylebox_override("fill", _style(CLAY, Color.TRANSPARENT, 0, 6))
+	overall_bar.add_theme_stylebox_override("background", UiFactory.style(Color("#302c2b"), Color.TRANSPARENT, 0, 6))
+	overall_bar.add_theme_stylebox_override("fill", UiFactory.style(CLAY, Color.TRANSPARENT, 0, 6))
 	game_layer.add_child(overall_bar)
 	nav_panel = PanelContainer.new()
-	nav_panel.add_theme_stylebox_override("panel", _style(PANEL, LINE, 1, 12))
+	nav_panel.add_theme_stylebox_override("panel", UiFactory.style(PANEL, LINE, 1, 12))
 	game_layer.add_child(nav_panel)
 	var nav_box := VBoxContainer.new()
 	nav_box.add_theme_constant_override("separation", 7)
 	nav_panel.add_child(nav_box)
-	nav_box.add_child(_label("THE SYSTEMS", 11, REED))
+	nav_box.add_child(UiFactory.label("THE SYSTEMS", 11, REED))
 	nav_list = VBoxContainer.new()
 	nav_list.add_theme_constant_override("separation", 5)
 	nav_box.add_child(nav_list)
-	var nav_hint := _label("Unlock the next door by\nlearning the one before it.", 11, MUTED)
+	var nav_hint := UiFactory.label("Unlock the next door by\nlearning the one before it.", 11, MUTED)
 	nav_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	nav_box.add_child(nav_hint)
 
 	content_panel = PanelContainer.new()
-	content_panel.add_theme_stylebox_override("panel", _style(PANEL_RAISED, LINE, 1, 12))
+	content_panel.add_theme_stylebox_override("panel", UiFactory.style(PANEL_RAISED, LINE, 1, 12))
 	game_layer.add_child(content_panel)
 	content_box = VBoxContainer.new()
 	content_box.add_theme_constant_override("separation", 12)
 	content_panel.add_child(content_box)
 	var header := HBoxContainer.new()
 	content_box.add_child(header)
-	system_title = _label("", 28, INK)
+	system_title = UiFactory.label("", 28, INK)
 	header.add_child(system_title)
 	var header_space := Control.new()
 	header_space.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(header_space)
-	level_label = _label("", 14, REED)
+	level_label = UiFactory.label("", 14, REED)
 	header.add_child(level_label)
-	system_description = _label("", 14, MUTED)
+	system_description = UiFactory.label("", 14, MUTED)
 	system_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content_box.add_child(system_description)
-	system_currency = _label("", 12, REED)
+	system_currency = UiFactory.label("", 12, REED)
 	content_box.add_child(system_currency)
 	var line := HSeparator.new()
 	content_box.add_child(line)
-	content_box.add_child(_label("CHOOSE AN ACTIVITY", 11, REED))
+	content_box.add_child(UiFactory.label("CHOOSE AN ACTIVITY", 11, REED))
 	activity_list = VBoxContainer.new()
 	activity_list.add_theme_constant_override("separation", 7)
 	content_box.add_child(activity_list)
 	var active_line := HSeparator.new()
 	content_box.add_child(active_line)
-	active_label = _label("No activity selected", 18, INK)
+	active_label = UiFactory.label("No activity selected", 18, INK)
 	content_box.add_child(active_label)
-	active_detail = _label("Choose a system activity to begin.", 12, MUTED)
+	active_detail = UiFactory.label("Choose a system activity to begin.", 12, MUTED)
 	active_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content_box.add_child(active_detail)
 	active_bar = ProgressBar.new()
 	active_bar.custom_minimum_size.y = 16
 	active_bar.show_percentage = false
-	active_bar.add_theme_stylebox_override("background", _style(Color("#302c2b"), Color.TRANSPARENT, 0, 8))
-	active_bar.add_theme_stylebox_override("fill", _style(REED, Color.TRANSPARENT, 0, 8))
+	active_bar.add_theme_stylebox_override("background", UiFactory.style(Color("#302c2b"), Color.TRANSPARENT, 0, 8))
+	active_bar.add_theme_stylebox_override("fill", UiFactory.style(REED, Color.TRANSPARENT, 0, 8))
 	content_box.add_child(active_bar)
-	repeat_button = _button("AUTO REPEAT: OFF", MUTED, BG)
+	repeat_button = UiFactory.button("AUTO REPEAT: OFF", MUTED, BG)
 	repeat_button.pressed.connect(_toggle_repeat)
 	content_box.add_child(repeat_button)
-	toast_label = _label("", 13, REED)
+	toast_label = UiFactory.label("", 13, REED)
 	toast_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content_box.add_child(toast_label)
 	_build_reward_panel()
@@ -270,7 +232,7 @@ func _build_game() -> void:
 func _build_reward_panel() -> void:
 	reward_panel = PanelContainer.new()
 	reward_panel.visible = false
-	reward_panel.add_theme_stylebox_override("panel", _style(Color("#302b1d"), REED, 1, 12))
+	reward_panel.add_theme_stylebox_override("panel", UiFactory.style(Color("#302b1d"), REED, 1, 12))
 	game_layer.add_child(reward_panel)
 	reward_box = VBoxContainer.new()
 	reward_box.add_theme_constant_override("separation", 8)
@@ -280,25 +242,13 @@ func _open_menu() -> void:
 	_show_menu()
 
 func _reset_progress() -> void:
-	state = {
-		"version": 1,
-		"day": 1,
-		"overall_xp": 0,
-		"currencies": {"reeds": 0, "water": 0, "clay": 0, "calm": 0, "focus": 8, "insight": 0, "silver": 0, "reputation": 0},
-		"systems": {},
-		"effects": {},
-		"unlocked_activities": {"gathering:reeds": true, "gathering:water": true}
-	}
-	for raw_system in systems:
-		var system: Dictionary = raw_system
-		state.systems[system.id] = {"level": 1, "xp": 0, "actions": 0}
-	_ensure_default_unlocks()
+	GameState.reset(systems)
+	state = GameState.data
 	active_system_id = "gathering"
 	active_task = {}
 	last_activity = {}
 	repeat_enabled = false
 	pending_reward = {}
-	_save_state()
 	_refresh_navigation()
 	_refresh_system()
 	_show_menu()
@@ -328,7 +278,7 @@ func _refresh_navigation() -> void:
 		var system: Dictionary = raw_system
 		var unlocked := _is_system_unlocked(system.id)
 		var level: int = int(state.systems.get(system.id, {}).get("level", 1))
-		var button := _button("%s  %s  %s" % [system.get("glyph", "·"), system.name, "LV %02d" % level if unlocked else "LOCKED"], REED if unlocked else MUTED, PANEL if system.id != active_system_id else Color("#3b3527"))
+		var button := UiFactory.button("%s  %s  %s" % [system.get("glyph", "·"), system.name, "LV %02d" % level if unlocked else "LOCKED"], REED if unlocked else MUTED, PANEL if system.id != active_system_id else Color("#3b3527"))
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.disabled = not unlocked
 		button.tooltip_text = system.description
@@ -352,7 +302,7 @@ func _refresh_system() -> void:
 		var unlocked := bool(state.unlocked_activities.get(key, false))
 		var can_start := unlocked and _can_afford(activity)
 		var label_text := "%s  |  %s  |  %s" % [activity.name, _format_flow(activity), "READY" if can_start else "NEEDS MATERIALS"]
-		var button := _button(label_text, INK if unlocked else MUTED, PANEL)
+		var button := UiFactory.button(label_text, INK if unlocked else MUTED, PANEL)
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.disabled = not can_start or not pending_reward.is_empty()
 		button.tooltip_text = activity.detail
@@ -446,12 +396,12 @@ func _refresh_reward_panel() -> void:
 		child.queue_free()
 	if pending_reward.is_empty():
 		return
-	reward_box.add_child(_label("LEVEL %02d UNDERSTANDING" % int(pending_reward.level), 13, REED))
-	reward_box.add_child(_label("Choose what this system teaches you.", 12, MUTED))
+	reward_box.add_child(UiFactory.label("LEVEL %02d UNDERSTANDING" % int(pending_reward.level), 13, REED))
+	reward_box.add_child(UiFactory.label("Choose what this system teaches you.", 12, MUTED))
 	var choices: Array = pending_reward.choices
 	for raw_choice in choices:
 		var choice: Dictionary = raw_choice
-		var button := _button("%s  /  %s" % [choice.label, choice.detail], INK, PANEL)
+		var button := UiFactory.button("%s  /  %s" % [choice.label, choice.detail], INK, PANEL)
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.pressed.connect(_choose_reward.bind(choice))
 		reward_box.add_child(button)
@@ -470,17 +420,7 @@ func _choose_reward(choice: Dictionary) -> void:
 	_refresh_system()
 
 func _format_flow(activity: Dictionary) -> String:
-	var inputs: Array[String] = []
-	for raw_cost in activity.get("costs", []):
-		var cost: Dictionary = raw_cost
-		inputs.append("%d %s" % [int(cost.amount), str(cost.currency).to_upper()])
-	if inputs.is_empty():
-		inputs.append("TIME")
-	var outputs: Array[String] = []
-	for raw_reward in activity.get("rewards", []):
-		var reward: Dictionary = raw_reward
-		outputs.append("%d %s" % [int(reward.amount), str(reward.currency).to_upper()])
-	return "IN %s -> OUT %s" % [", ".join(inputs), ", ".join(outputs)]
+	return SimulationRules.format_flow(activity)
 
 func _get_system(system_id: String) -> Dictionary:
 	for raw_system in systems:
@@ -517,21 +457,19 @@ func _add_currency(currency: String, amount: int) -> void:
 	state.currencies[currency] = maxi(0, int(state.currencies.get(currency, 0)) + amount)
 
 func _xp_needed(level: int) -> int:
-	return 12 + level * 10
+	return SimulationRules.xp_needed(level)
 
 func _duration_multiplier(system_id: String) -> float:
-	var speed: float = float(state.effects.get("%s:speed" % system_id, 0.0))
-	return 1.0 / (1.0 + speed)
+	return SimulationRules.duration_multiplier(state.effects, system_id)
 
 func _xp_multiplier(system_id: String) -> float:
-	return 1.0 + float(state.effects.get("%s:xp" % system_id, 0.0))
+	return SimulationRules.xp_multiplier(state.effects, system_id)
 
 func _yield_multiplier(system_id: String) -> float:
-	return 1.0 + float(state.effects.get("%s:yield" % system_id, 0.0))
+	return SimulationRules.yield_multiplier(state.effects, system_id)
 
 func _roll_critical(system_id: String) -> bool:
-	var chance: float = float(state.effects.get("%s:critical" % system_id, 0.0))
-	return randf() < chance
+	return SimulationRules.critical_roll(state.effects, system_id, randf())
 
 func _show_toast(message: String) -> void:
 	toast_text = message
@@ -585,35 +523,3 @@ func _layout() -> void:
 	reward_panel.position = Vector2(margin + 20.0, height * 0.44)
 	reward_panel.size = Vector2(maxf(260.0, width - margin * 2.0 - 40.0), 180.0)
 	queue_redraw()
-
-func _label(text: String, font_size: int, color: Color) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.add_theme_color_override("font_color", color)
-	label.add_theme_font_size_override("font_size", font_size)
-	return label
-
-func _button(text: String, color: Color, background: Color) -> Button:
-	var button := Button.new()
-	button.text = text
-	button.custom_minimum_size = Vector2(0, 42)
-	button.add_theme_color_override("font_color", color)
-	button.add_theme_color_override("font_hover_color", REED)
-	button.add_theme_font_size_override("font_size", 12)
-	button.add_theme_stylebox_override("normal", _style(background, LINE, 1, 8))
-	button.add_theme_stylebox_override("hover", _style(Color("#312d24"), REED, 1, 8))
-	button.add_theme_stylebox_override("pressed", _style(Color("#3c3527"), REED, 1, 8))
-	button.add_theme_stylebox_override("disabled", _style(Color("#191719"), Color("#302c2b"), 1, 8))
-	return button
-
-func _style(background: Color, border: Color, width: int, radius: int) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = background
-	style.border_color = border
-	style.set_border_width_all(width)
-	style.set_corner_radius_all(radius)
-	style.content_margin_left = 16.0
-	style.content_margin_right = 16.0
-	style.content_margin_top = 10.0
-	style.content_margin_bottom = 10.0
-	return style

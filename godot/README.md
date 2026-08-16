@@ -11,9 +11,25 @@ Each system has activities, currencies, upgrades, and relationships.
 Open the `godot/` folder in Godot 4.3 or newer.
 Run the main scene.
 
+## Architecture
+
+- `data/systems.json` contains declarative system and activity content.
+- `scripts/core/game_state.gd` owns hoisted save state through the `GameState` autoload.
+- `scripts/core/content_database.gd` loads game content.
+- `scripts/core/simulation_rules.gd` contains pure progression and effect rules.
+- `scripts/ui/ui_factory.gd` creates shared controls and styles.
+- `scripts/main.gd` coordinates input, state changes, and view updates.
+
+The intended flow is:
+
+```text
+input -> controller -> state and rules -> view update -> feedback
+```
+
+The view does not own persistent state.
+
 ## Current loop
 
-- Choose an unlocked system.
 - Choose an activity.
 - Watch it advance over time.
 - Gain currency and system XP.
@@ -30,7 +46,7 @@ This keeps Web and mobile export options open.
 Export a new version with:
 
 ```sh
-VERSION=v10
+VERSION=v11
 mkdir -p "public/godot/$VERSION"
 /Applications/Godot.app/Contents/MacOS/Godot \
   --headless --path godot \
