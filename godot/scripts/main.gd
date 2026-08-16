@@ -28,6 +28,7 @@ var toast_timer := 0.0
 var toast_text := ""
 
 var menu_layer: Control
+var menu_panel: PanelContainer
 var game_layer: Control
 var nav_panel: PanelContainer
 var content_panel: PanelContainer
@@ -146,13 +147,13 @@ func _build_menu() -> void:
 	var center := CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	menu_layer.add_child(center)
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(500, 380)
-	panel.add_theme_stylebox_override("panel", _style(PANEL, LINE, 1, 18))
-	center.add_child(panel)
+	menu_panel = PanelContainer.new()
+	menu_panel.custom_minimum_size = Vector2(500, 380)
+	menu_panel.add_theme_stylebox_override("panel", _style(PANEL, LINE, 1, 18))
+	center.add_child(menu_panel)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 14)
-	panel.add_child(box)
+	menu_panel.add_child(box)
 	box.add_child(_label("THE TABLET REMEMBERS", 12, REED))
 	box.add_child(_label("Ego\nIncremental", 42, INK))
 	var intro := _label("Begin with hunger.\nEnd somewhere stranger.", 18, MUTED)
@@ -322,7 +323,7 @@ func _update_world() -> void:
 	if not currency_label:
 		return
 	var currencies: Dictionary = state.currencies
-	currency_label.text = "REEDS %02d   WATER %02d   CLAY %02d   CALM %02d   FOCUS %02d   SILVER %02d" % [currencies.reeds, currencies.water, currencies.clay, currencies.calm, currencies.focus, currencies.silver]
+	currency_label.text = "R %02d  ·  W %02d  ·  C %02d  ·  M %02d  ·  F %02d  ·  S %02d" % [currencies.reeds, currencies.water, currencies.clay, currencies.calm, currencies.focus, currencies.silver]
 	day_label.text = "DAY %02d" % int(state.day)
 	if not active_task.is_empty():
 		var activity: Dictionary = active_task.activity
@@ -496,18 +497,23 @@ func _layout() -> void:
 	if top_child:
 		top_child.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var top_y: float = margin + top_height + 14.0
-	if width >= 800.0:
-		var nav_width: float = 280.0
+	var compact_width: bool = width < 800.0
+	var short_screen: bool = height < 560.0
+	var desktop_layout: bool = not compact_width or (width >= 640.0 and short_screen)
+	if desktop_layout:
+		var nav_width: float = 280.0 if width >= 800.0 else 220.0
 		nav_panel.position = Vector2(margin, top_y)
 		nav_panel.size = Vector2(nav_width, height - top_y - margin)
 		content_panel.position = Vector2(margin + nav_width + 14.0, top_y)
 		content_panel.size = Vector2(width - margin * 2.0 - nav_width - 14.0, height - top_y - margin)
 	else:
-		var nav_height: float = 148.0
+		var nav_height: float = 252.0
 		nav_panel.position = Vector2(margin, top_y)
 		nav_panel.size = Vector2(width - margin * 2.0, nav_height)
 		content_panel.position = Vector2(margin, top_y + nav_height + 12.0)
 		content_panel.size = Vector2(width - margin * 2.0, maxf(220.0, height - top_y - nav_height - margin - 12.0))
+	if menu_panel:
+		menu_panel.custom_minimum_size = Vector2(minf(500.0, width - 28.0), minf(440.0, height - 28.0))
 	reward_panel.position = Vector2(margin + 20.0, height * 0.44)
 	reward_panel.size = Vector2(maxf(260.0, width - margin * 2.0 - 40.0), 180.0)
 	queue_redraw()

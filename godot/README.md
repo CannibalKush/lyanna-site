@@ -30,7 +30,7 @@ This keeps Web and mobile export options open.
 Export a new version with:
 
 ```sh
-VERSION=v6
+VERSION=v8
 mkdir -p "public/godot/$VERSION"
 /Applications/Godot.app/Contents/MacOS/Godot \
   --headless --path godot \

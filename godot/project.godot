@@ -11,11 +11,13 @@ config/features=PackedStringArray("4.3", "GL Compatibility")
 
 [display]
 
-window/size/viewport_width=1152
-window/size/viewport_height=648
-window/size/window_width_override=960
-window/size/window_height_override=540
+window/size/viewport_width=720
+window/size/viewport_height=720
+window/size/window_width_override=720
+window/size/window_height_override=720
+window/handheld/orientation=6
 window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 
 [rendering]
 
