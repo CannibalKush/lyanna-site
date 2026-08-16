@@ -318,6 +318,7 @@ func _refresh_system() -> void:
 		active_detail.text = "Choose an activity to begin."
 		active_bar.value = 0.0
 	_update_world()
+	_refresh_reward_panel()
 
 func _update_world() -> void:
 	if not currency_label:
@@ -328,7 +329,6 @@ func _update_world() -> void:
 	if not active_task.is_empty():
 		var activity: Dictionary = active_task.activity
 		active_detail.text = activity.detail
-	_refresh_reward_panel()
 
 func _start_activity(system_id: String, activity: Dictionary) -> void:
 	if not _can_afford(activity) or not pending_reward.is_empty() or not active_task.is_empty():
