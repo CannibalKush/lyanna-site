@@ -4,25 +4,27 @@
 
 The game presents humble tasks as the first layer of a hidden Mesopotamian spiritual world.
 The player begins as a hungry beggar outside an ancient city.
-The player selects tasks from a left-side list.
-The active task advances at a fixed simulation rate.
-The interface shows task progress, XP, rewards, and discoveries.
+The left bar contains unlockable systems, not a flat list of chores.
+Each system has its own screen, rules, currencies, upgrades, and relationships.
+The active system advances a chosen activity at a fixed simulation rate.
+The interface shows system progress, XP, rewards, currencies, and discoveries.
 
-The first tasks should feel concrete and poor:
+The first systems should feel concrete and poor:
 
-- Gather reeds.
-- Find clean water.
-- Read mud marks.
-- Offer bread at a shrine.
-- Learn which stars return.
+- Gathering: collect reeds, food, and water.
+- Meditation: reduce the cost of future improvements.
+- Incantation: convert Focus into materials.
+- Bartering: buy and sell goods.
+- Scribing: turn discoveries into permanent knowledge.
+- Divination: reveal future opportunities and risks.
 
 The player does not click for every action.
-The player chooses what deserves time.
+The player chooses which system deserves attention.
 
 The first useful transformation is:
 
 ```text
-select humble task → gain XP → learn a ritual → unlock meaning → automate routine → approach divinity
+unlock system → learn its currency → improve the system → connect it to another system → automate routine → approach divinity
 ```
 
 ## 2. Progression graph
@@ -55,9 +57,51 @@ Use soft synergies for bonuses.
 Do not hide every bonus inside the graph.
 The player must understand why a node matters.
 
-## 3. Task model
+## 3. System model
 
-A task definition contains:
+Each left-bar element is a system definition.
+A system owns one main loop and may expose several activities.
+
+A system definition contains:
+
+- Stable identifier.
+- Display name and symbol.
+- Unlock requirements.
+- Primary currency.
+- Optional secondary currency.
+- Activities.
+- Self-upgrades.
+- Cross-system effects.
+- Automation rules.
+- Prestige interactions.
+
+Example systems:
+
+```text
+Meditation
+  currency: calm
+  secondary: insight
+  improves: upgrade costs, focus recovery
+  receives: incense from Incantation
+
+Incantation
+  currency: focus
+  secondary: words
+  converts: focus → materials
+  receives: calm from Meditation
+
+Bartering
+  currency: silver
+  secondary: reputation
+  converts: goods ↔ silver
+  receives: goods from Gathering and Incantation
+```
+
+Systems should improve themselves and sometimes improve another system.
+Cross-system effects should remain legible.
+The player should understand the connection before optimizing it.
+
+Each activity definition contains:
 
 - Stable identifier.
 - Display name.

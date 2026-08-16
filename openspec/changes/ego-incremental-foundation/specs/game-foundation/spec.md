@@ -2,6 +2,25 @@
 
 ## ADDED Requirements
 
+### Requirement: System-driven play
+
+The game SHALL present unlockable systems in the left navigation.
+A system SHALL own activities, currencies, upgrades, and cross-system effects.
+
+#### Scenario: Open a system
+
+- GIVEN the player has unlocked a system
+- WHEN the player selects its left-navigation item
+- THEN the game SHALL show that system's activities and state
+- AND the game SHALL not present the system as an ungrouped task
+
+#### Scenario: Interrelate systems
+
+- GIVEN one system produces a currency or effect used by another system
+- WHEN the player completes an activity
+- THEN the receiving system SHALL apply the defined benefit
+- AND the interface SHALL identify the relationship
+
 ### Requirement: Task-driven play
 
 The game SHALL present available tasks as selectable items.
