@@ -51,6 +51,15 @@ These questions need decisions before implementation passes Phase 0.
 27. What data may the server retain?
 28. What anti-abuse response is acceptable for suspicious runs?
 
+## Presentation
+
+29. Should the camera feel like a clay tablet, a shrine, a city, or a living landscape?
+30. Should the pixel style use crisp hard pixels or a softer illustrated texture?
+31. Which feedback deserves the strongest celebration: discovery, level-up, or system unlock?
+32. Should audio enter the first prototype, or follow visual polish?
+33. Should Creative Commons assets support the prototype, or should we create original placeholder art first?
+34. Are we comfortable recording asset attribution inside the repository?
+
 ## Recommended defaults
 
 Use these defaults if no decision exists:

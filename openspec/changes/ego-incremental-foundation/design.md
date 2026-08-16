@@ -390,7 +390,54 @@ Keep runtime state separate from definitions.
 Keep effects separate from task execution.
 Keep network authority separate from presentation.
 
-## 14. Testing principles
+## 15. Visual and feedback direction
+
+The game SHALL use a restrained pixel-art-inspired style.
+The style SHALL feel ancient, esoteric, tactile, and readable.
+
+Use:
+
+- Small pixel-art motifs.
+- Clay, lapis, reed, ash, and gold colors.
+- High contrast for task state and important rewards.
+- Subtle idle motion.
+- Small particles for resource gains.
+- Short progress pulses.
+- Clear level-up moments.
+- Distinct audio cues when audio enters scope.
+- Creative Commons assets only when license and attribution are recorded.
+
+Avoid:
+
+- Loud screen shake.
+- Constant particles.
+- Busy backgrounds behind text.
+- Generic fantasy icons without meaning.
+- Asset packs with unclear licenses.
+- Decorative animation that hides state changes.
+
+Every important action should provide feedback through at least two channels.
+Use visual change plus text, sound, motion, or particles.
+Respect reduced-motion settings where the platform exposes them.
+
+Art assets should support the system identity.
+Meditation should not look like Bartering.
+Incantation should not look like Gathering.
+
+## 16. Alignment gates
+
+Do not begin the large implementation until these decisions have an answer:
+
+- Player fantasy.
+- System scope for the first slice.
+- First currencies.
+- First progression graph.
+- Active versus idle pacing.
+- Automation timing.
+- Prestige meaning.
+- Visual style and asset policy.
+- Offline and ranked boundaries.
+- First community feature.
 
 Test rules without the Godot scene tree where possible.
 
