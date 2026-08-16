@@ -97,12 +97,39 @@ func update_system(system: Dictionary, state: Dictionary, pending: Dictionary, a
 		var key := "%s:%s" % [active_id, activity.id]
 		var unlocked: bool = bool(state.unlocked_activities.get(key, false))
 		var ready: bool = unlocked and bool(can_afford.call(activity))
-		var button := UiFactory.button("%s  |  %s  |  %s" % [activity.name, flow.call(activity), "READY" if ready else "NEEDS MATERIALS"], Color("#eee8d4") if unlocked else Color("#9c9587"), Color("#1b191b"))
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.disabled = not ready or not pending.is_empty()
-		button.tooltip_text = "%s\n%s" % [activity.detail, SimulationRules.resource_tooltip(activity)]
-		button.pressed.connect(activity_selected.emit.bind(active_id, activity))
+		var button := _make_activity_button(activity, flow.call(activity), ready, unlocked, active_id, pending)
 		list.add_child(button)
+
+func _make_activity_button(activity: Dictionary, flow_text: String, ready: bool, unlocked: bool, active_id: String, pending: Dictionary) -> Button:
+	var button := UiFactory.button("", Color("#eee8d4") if unlocked else Color("#9c9587"), Color("#1b191b"))
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.disabled = not ready or not pending.is_empty()
+	button.tooltip_text = "%s\n%s" % [activity.detail, SimulationRules.resource_tooltip(activity)]
+	button.pressed.connect(activity_selected.emit.bind(active_id, activity))
+	var row := HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_theme_constant_override("separation", 8)
+	button.add_child(row)
+	row.add_child(UiFactory.label("%s  %s" % [activity.name, flow_text], 12, Color("#eee8d4") if unlocked else Color("#9c9587")))
+	for raw_reward in activity.get("rewards", []):
+		var reward: Dictionary = raw_reward
+		_add_resource_icon(row, str(reward.currency), "+%d" % int(reward.amount))
+	for raw_cost in activity.get("costs", []):
+		var cost: Dictionary = raw_cost
+		_add_resource_icon(row, str(cost.currency), "-%d" % int(cost.amount))
+	return button
+
+func _add_resource_icon(row: HBoxContainer, currency: String, amount: String) -> void:
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = Vector2(26, 26)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = load(_resource_icon_path(currency))
+	icon.tooltip_text = "%s %s" % [amount, currency.capitalize()]
+	row.add_child(icon)
+
+func _resource_icon_path(currency: String) -> String:
+	return {"reeds": "res://assets/496-rpg-icons/I_Leaf.png", "water": "res://assets/496-rpg-icons/I_Water.png", "clay": "res://assets/496-rpg-icons/I_Rock01.png", "calm": "res://assets/496-rpg-icons/S_Water01.png", "focus": "res://assets/496-rpg-icons/S_Fire07.png", "insight": "res://assets/496-rpg-icons/I_Scroll.png", "silver": "res://assets/496-rpg-icons/I_SilverCoin.png", "reputation": "res://assets/496-rpg-icons/Ac_Medal04.png"}.get(currency, "res://assets/496-rpg-icons/I_Crystal01.png")
 
 func update_active(active_task: Dictionary, progress: float) -> void:
 	if active_task.is_empty():
