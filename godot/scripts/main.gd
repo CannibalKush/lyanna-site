@@ -277,7 +277,9 @@ func _choose_reward(choice: Dictionary) -> void:
 	_refresh_system()
 
 func _format_flow(activity: Dictionary) -> String:
-	return SimulationRules.format_flow(activity)
+	var adjusted: Dictionary = activity.duplicate()
+	adjusted["duration"] = float(activity.get("duration", 0.0)) * _duration_multiplier(active_system_id)
+	return SimulationRules.format_flow(adjusted)
 
 func _set_action_indicator(activity: Dictionary, progress: float, duration: float) -> void:
 	if not action_indicator:

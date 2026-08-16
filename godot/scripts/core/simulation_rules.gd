@@ -29,7 +29,7 @@ static func format_flow(activity: Dictionary) -> String:
 	for raw_cost in activity.get("costs", []):
 		var cost: Dictionary = raw_cost
 		inputs.append("-[%s]" % resource_icon(str(cost.currency)))
-	return "%s | %s | %s" % ["TIME", ", ".join(outputs) if not outputs.is_empty() else "—", ", ".join(inputs) if not inputs.is_empty() else "—"]
+	return "%ds | %s | %s" % [int(activity.get("duration", 0.0)), ", ".join(outputs) if not outputs.is_empty() else "—", ", ".join(inputs) if not inputs.is_empty() else "—"]
 
 static func resource_icon(currency: String) -> String:
 	return {"reeds": "R", "water": "W", "clay": "C", "calm": "M", "focus": "F", "insight": "I", "silver": "S", "reputation": "P"}.get(currency, currency.substr(0, 1).to_upper())
