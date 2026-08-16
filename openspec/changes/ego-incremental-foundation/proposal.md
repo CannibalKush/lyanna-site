@@ -17,10 +17,20 @@ Prestige converts a completed run into permanent progress.
 
 The primary fantasy is:
 
-> Choose work, master it, and build systems that make the work unnecessary.
+> Begin as a forgotten beggar in ancient Mesopotamia, then climb through hidden knowledge toward godhood.
 
 The player should move from manual task selection to automation design.
 The player should make meaningful choices about speed, XP, yield, quality, critical rewards, and discovery.
+
+The game should make ordinary work feel sacred.
+The long horizon should move through stages such as:
+
+```text
+Beggar → Gatherer → Initiate → Scribe → Diviner → Priest → Kingmaker → Living god
+```
+
+The player begins with hunger, obscurity, and one small ritual.
+The player gradually discovers that humble tasks belong to a hidden spiritual and economic structure.
 
 ## Scope
 

@@ -2,10 +2,19 @@
 
 ## 1. Product shape
 
-The game uses one active task at first.
+The game presents humble tasks as the first layer of a hidden Mesopotamian spiritual world.
+The player begins as a hungry beggar outside an ancient city.
 The player selects tasks from a left-side list.
 The active task advances at a fixed simulation rate.
-The interface shows task progress, XP, rewards, and unlocks.
+The interface shows task progress, XP, rewards, and discoveries.
+
+The first tasks should feel concrete and poor:
+
+- Gather reeds.
+- Find clean water.
+- Read mud marks.
+- Offer bread at a shrine.
+- Learn which stars return.
 
 The player does not click for every action.
 The player chooses what deserves time.
@@ -13,7 +22,7 @@ The player chooses what deserves time.
 The first useful transformation is:
 
 ```text
-select task → gain XP → level task → choose reward → unlock task → automate task
+select humble task → gain XP → learn a ritual → unlock meaning → automate routine → approach divinity
 ```
 
 ## 2. Progression graph
