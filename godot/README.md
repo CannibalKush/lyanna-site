@@ -1,32 +1,54 @@
-# Pocket Field
+# Ego Incremental
 
-A small 2D incremental game prototype.
+A responsive Godot 4 incremental game prototype.
 
-## Run
+The player begins as a hungry beggar near an ancient river.
+The first systems are Gathering, Meditation, Incantation, and Bartering.
+Each system has activities, currencies, upgrades, and relationships.
+
+## Run locally
 
 Open the `godot/` folder in Godot 4.3 or newer.
-
 Run the main scene.
 
-- Click to gather light.
-- Press Space to gather light.
+## Current loop
 
-## Current state
+- Choose an unlocked system.
+- Choose an activity.
+- Watch it advance over time.
+- Gain currency and system XP.
+- Choose a reward when a system levels.
+- Unlock the next system.
+- Toggle automatic repetition after an activity completes.
+- Progress saves to `user://ego_incremental.json`.
 
-- Godot 4 project settings.
-- 2D scene with a procedural placeholder world.
-- Basic input.
-- Basic resource counter.
-- No external assets.
+## Export for the site
 
-The project uses the GL Compatibility renderer. This keeps web and mobile export options open.
+The project uses the Compatibility renderer.
+This keeps Web and mobile export options open.
 
-The checked-in Web export lives at `public/godot/` and is embedded on `/game`.
-
-To regenerate it after changing the Godot project:
+Export a new version with:
 
 ```sh
-mkdir -p public/godot/v2
-/Applications/Godot.app/Contents/MacOS/Godot --headless --path godot --export-release Web "$PWD/public/godot/v2/index.html"
-brotli -q 11 -c public/godot/v2/index.wasm > /tmp/index.wasm.br && mv /tmp/index.wasm.br public/godot/v2/index.wasm
+VERSION=v6
+mkdir -p "public/godot/$VERSION"
+/Applications/Godot.app/Contents/MacOS/Godot \
+  --headless --path godot \
+  --export-release Web "$PWD/public/godot/$VERSION/index.html"
+brotli -q 11 -c "public/godot/$VERSION/index.wasm" \
+  > /tmp/index.wasm.br
+mv /tmp/index.wasm.br "public/godot/$VERSION/index.wasm"
 ```
+
+Update the iframe route and `public/_headers` when the version changes.
+
+## Design source
+
+The OpenSpec plan lives in:
+
+```text
+openspec/changes/ego-incremental-foundation/
+```
+
+The browser client remains untrusted.
+Offline progress is not ranked.

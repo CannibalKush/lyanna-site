@@ -2,61 +2,59 @@
 
 ## Phase 0: Agreement and boundaries
 
-- [ ] Review the proposal and design with the team.
-- [ ] Choose the first task families.
-- [ ] Choose the first currency set.
-- [ ] Choose the first graph nodes.
-- [ ] Record accepted open-question answers in the design.
+- [x] Review the proposal and design with the team.
+- [x] Choose the first system families.
+- [x] Choose the first currency set.
+- [x] Choose the first graph nodes.
+- [x] Record accepted open-question answers in the design.
 
 ## Phase 1: Data model
 
-- [ ] Create typed task-definition data.
-- [ ] Create typed progression-node data.
-- [ ] Create typed effect data.
-- [ ] Create versioned runtime state.
+- [x] Create data-defined system and activity definitions.
+- [x] Create versioned runtime state.
 - [ ] Add content validation for missing identifiers.
 - [ ] Add graph validation for cycles.
 - [ ] Add validation for invalid prerequisites.
 
 ## Phase 2: Manual mastery slice
 
-- [ ] Replace hard-coded task values with data files.
-- [ ] Implement one active task from its definition.
-- [ ] Grant task rewards from data.
-- [ ] Grant XP from data.
-- [ ] Calculate task levels from thresholds.
-- [ ] Show task level and XP progress.
-- [ ] Present level reward choices.
-- [ ] Apply the selected reward.
-- [ ] Add three initial task families.
-- [ ] Add the first cross-family unlock.
+- [x] Replace hard-coded task values with data files.
+- [x] Implement one active activity from its definition.
+- [x] Grant activity rewards from data.
+- [x] Grant XP from data.
+- [x] Calculate system levels from thresholds.
+- [x] Show system level and XP progress.
+- [x] Present level reward choices.
+- [x] Apply the selected reward.
+- [x] Add the four initial systems.
+- [x] Add cross-system unlock requirements.
 
 ## Phase 3: Effects and balance
 
-- [ ] Implement the effect resolver.
-- [ ] Add speed effects.
-- [ ] Add XP effects.
-- [ ] Add yield effects.
-- [ ] Add critical effects.
+- [x] Implement the first effect resolver.
+- [x] Add speed effects.
+- [x] Add XP effects.
+- [x] Add yield effects.
+- [x] Add critical effects.
 - [ ] Add discovery effects.
-- [ ] Define stacking rules.
+- [ ] Define formal stacking rules.
 - [ ] Add simulation tests for each stacking rule.
 - [ ] Add a balance fixture for the first fifteen minutes.
 
 ## Phase 4: Automation
 
-- [ ] Add repeat-current-task automation.
+- [x] Add repeat-current-activity automation.
 - [ ] Add fixed queues.
 - [ ] Add resource conditions.
 - [ ] Add energy conditions.
 - [ ] Add inventory conditions.
 - [ ] Add routine slots.
-- [ ] Prevent automation from bypassing requirements.
+- [x] Prevent repeat automation from bypassing requirements.
 - [ ] Add automation opportunity costs.
 
 ## Phase 5: Persistence and prestige
 
-- [ ] Add versioned save data.
+- [x] Add versioned save data.
 - [ ] Add atomic local save writes.
 - [ ] Add save migrations.
 - [ ] Add a locked prestige panel.
@@ -66,26 +64,19 @@
 
 ## Phase 6: Security foundation
 
-- [ ] Define offline and ranked modes.
-- [ ] Mark local state as untrusted.
+- [x] Define offline and ranked modes.
+- [x] Mark local state as untrusted.
 - [ ] Define the server command protocol.
 - [ ] Define deterministic reward calculations.
 - [ ] Implement server-side prerequisite validation.
 - [ ] Implement server-side reward validation.
 - [ ] Add append-only ranked event records.
 - [ ] Add impossible-transition detection.
-- [ ] Exclude offline state from ranked results.
+- [x] Exclude offline state from ranked results.
 
 ## Phase 7: Community foundation
 
-- [ ] Add shareable build serialization.
-- [ ] Add import validation for shared builds.
-- [ ] Add fixed challenge definitions.
-- [ ] Add challenge result submission.
-- [ ] Add seasonal leaderboard rules.
-- [ ] Add public milestone cards.
-- [ ] Define privacy and moderation policy.
-- [ ] Design asynchronous guild research.
+- [ ] Deferred by product decision.
 
 ## Verification commands
 

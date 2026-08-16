@@ -1,0 +1,89 @@
+{
+  "systems": [
+    {
+      "id": "gathering",
+      "name": "Gathering",
+      "glyph": "𒀭",
+      "tone": "reed",
+      "description": "Begin with what the river leaves behind. Small things become foundations.",
+      "currency": "materials",
+      "activities": [
+        {"id": "reeds", "name": "Gather reeds", "detail": "Cut the river grass before the heat rises.", "duration": 4.0, "xp": 5, "rewards": [{"currency": "reeds", "amount": 3}]},
+        {"id": "water", "name": "Find clean water", "detail": "Follow the birds to a quiet pool.", "duration": 6.0, "xp": 8, "rewards": [{"currency": "water", "amount": 2}]},
+        {"id": "clay", "name": "Shape river clay", "detail": "The mud remembers every hand that touches it.", "duration": 8.0, "xp": 11, "rewards": [{"currency": "clay", "amount": 2}]}
+      ],
+      "rewards": {
+        "2": [
+          {"label": "Patient hands", "detail": "+15% Gathering speed", "kind": "speed", "value": 0.15},
+          {"label": "Useful scars", "detail": "+25% Gathering XP", "kind": "xp", "value": 0.25},
+          {"label": "Keen eye", "detail": "+1 material on every gathering task", "kind": "yield", "value": 1}
+        ],
+        "3": [
+          {"label": "River memory", "detail": "Unlock Shape river clay", "kind": "unlock_activity", "value": "clay"},
+          {"label": "Long breath", "detail": "+10 maximum Focus", "kind": "focus_capacity", "value": 10},
+          {"label": "Quiet abundance", "detail": "+10% all material yield", "kind": "yield", "value": 0.1}
+        ]
+      }
+    },
+    {
+      "id": "meditation",
+      "name": "Meditation",
+      "glyph": "☉",
+      "tone": "gold",
+      "description": "Sit beneath the reed awning. Attention is the first wealth.",
+      "currency": "calm",
+      "requirements": {"system": "gathering", "level": 2},
+      "activities": [
+        {"id": "stillness", "name": "Sit in stillness", "detail": "Turn noise into a little Calm.", "duration": 5.0, "xp": 6, "rewards": [{"currency": "calm", "amount": 3}, {"currency": "focus", "amount": 2}]},
+        {"id": "breath", "name": "Count the breath", "detail": "Make every future choice a little lighter.", "duration": 9.0, "xp": 12, "rewards": [{"currency": "calm", "amount": 6}, {"currency": "focus", "amount": 4}]}
+      ],
+      "rewards": {
+        "2": [
+          {"label": "Soft attention", "detail": "+20% Meditation speed", "kind": "speed", "value": 0.2},
+          {"label": "Open vessel", "detail": "+25% Focus gain", "kind": "focus_gain", "value": 0.25},
+          {"label": "Fewer wants", "detail": "Upgrade costs reduced by 10%", "kind": "cost_discount", "value": 0.1}
+        ]
+      }
+    },
+    {
+      "id": "incantation",
+      "name": "Incantation",
+      "glyph": "𒂊",
+      "tone": "violet",
+      "description": "Give a name to what is not yet understood. Words change the shape of matter.",
+      "currency": "focus",
+      "requirements": {"system": "meditation", "level": 1},
+      "activities": [
+        {"id": "reed_name", "name": "Speak the reed-name", "detail": "Spend 3 Focus to call one bundle of reeds into being.", "duration": 7.0, "xp": 10, "costs": [{"currency": "focus", "amount": 3}], "rewards": [{"currency": "reeds", "amount": 5}]},
+        {"id": "clay_seal", "name": "Seal a clay tablet", "detail": "Spend 5 Focus and 1 Clay to preserve a discovery.", "duration": 10.0, "xp": 16, "costs": [{"currency": "focus", "amount": 5}, {"currency": "clay", "amount": 1}], "rewards": [{"currency": "insight", "amount": 2}]}
+      ],
+      "rewards": {
+        "2": [
+          {"label": "True syllable", "detail": "+20% Incantation XP", "kind": "xp", "value": 0.2},
+          {"label": "Thrifty spirit", "detail": "Incantation costs 1 less Focus", "kind": "cost_reduction", "value": 1},
+          {"label": "Echoing word", "detail": "+10% chance to double spell rewards", "kind": "critical", "value": 0.1}
+        ]
+      }
+    },
+    {
+      "id": "bartering",
+      "name": "Bartering",
+      "glyph": "𒆠",
+      "tone": "blue",
+      "description": "The market is another kind of temple. Everything has a name and a price.",
+      "currency": "silver",
+      "requirements": {"system": "gathering", "level": 2},
+      "activities": [
+        {"id": "market", "name": "Visit the market", "detail": "Trade gathered goods for Silver and Reputation.", "duration": 8.0, "xp": 14, "costs": [{"currency": "reeds", "amount": 3}, {"currency": "water", "amount": 1}], "rewards": [{"currency": "silver", "amount": 9}, {"currency": "reputation", "amount": 1}]},
+        {"id": "offer", "name": "Make an offering", "detail": "Spend 2 Clay to earn Silver and a little Insight.", "duration": 11.0, "xp": 20, "costs": [{"currency": "clay", "amount": 2}], "rewards": [{"currency": "silver", "amount": 16}, {"currency": "insight", "amount": 1}]}
+      ],
+      "rewards": {
+        "2": [
+          {"label": "Sharp tongue", "detail": "+20% Bartering Silver", "kind": "silver", "value": 0.2},
+          {"label": "Known face", "detail": "+25% Reputation gain", "kind": "reputation", "value": 0.25},
+          {"label": "Fair exchange", "detail": "+15% Bartering XP", "kind": "xp", "value": 0.15}
+        ]
+      }
+    }
+  ]
+}
