@@ -21,14 +21,25 @@ static func critical_roll(effects: Dictionary, system_id: String, random_value: 
 	return random_value < chance
 
 static func format_flow(activity: Dictionary) -> String:
-	var inputs: Array[String] = []
-	for raw_cost in activity.get("costs", []):
-		var cost: Dictionary = raw_cost
-		inputs.append("%d %s" % [int(cost.amount), str(cost.currency).to_upper()])
-	if inputs.is_empty():
-		inputs.append("TIME")
 	var outputs: Array[String] = []
 	for raw_reward in activity.get("rewards", []):
 		var reward: Dictionary = raw_reward
-		outputs.append("%d %s" % [int(reward.amount), str(reward.currency).to_upper()])
-	return "IN %s -> OUT %s" % [", ".join(inputs), ", ".join(outputs)]
+		outputs.append("+[%s]" % resource_icon(str(reward.currency)))
+	var inputs: Array[String] = []
+	for raw_cost in activity.get("costs", []):
+		var cost: Dictionary = raw_cost
+		inputs.append("-[%s]" % resource_icon(str(cost.currency)))
+	return "%s | %s | %s" % ["TIME", ", ".join(outputs) if not outputs.is_empty() else "—", ", ".join(inputs) if not inputs.is_empty() else "—"]
+
+static func resource_icon(currency: String) -> String:
+	return {"reeds": "R", "water": "W", "clay": "C", "calm": "M", "focus": "F", "insight": "I", "silver": "S", "reputation": "P"}.get(currency, currency.substr(0, 1).to_upper())
+
+static func resource_tooltip(activity: Dictionary) -> String:
+	var parts: Array[String] = []
+	for raw_cost in activity.get("costs", []):
+		var cost: Dictionary = raw_cost
+		parts.append("- %d %s" % [int(cost.amount), str(cost.currency).capitalize()])
+	for raw_reward in activity.get("rewards", []):
+		var reward: Dictionary = raw_reward
+		parts.append("+ %d %s" % [int(reward.amount), str(reward.currency).capitalize()])
+	return "\n".join(parts)

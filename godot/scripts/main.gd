@@ -33,6 +33,7 @@ var hud: GameHud
 var navigation: SystemNavigation
 var activity_panel: ActivityPanel
 var reward_popup: RewardPopup
+var action_indicator: Label
 
 func _ready() -> void:
 	_load_content()
@@ -54,9 +55,10 @@ func _process(delta: float) -> void:
 		var system_id: String = active_task.get("system_id", "")
 		var activity: Dictionary = active_task.get("activity", {})
 		var duration: float = float(activity.get("duration", 1.0)) * _duration_multiplier(system_id)
-		task_progress += delta
+		task_progress = maxf(task_progress, float(Time.get_unix_time_from_system() - float(state.get("active_started_at", Time.get_unix_time_from_system()))))
 		var percent: float = minf(100.0, task_progress / duration * 100.0)
 		activity_panel.update_active(active_task, percent)
+		_set_action_indicator(activity, task_progress, duration)
 		if task_progress >= duration:
 			_finish_activity()
 	_update_world()
@@ -77,6 +79,10 @@ func _load_content() -> void:
 func _load_state() -> void:
 	GameState.initialize(systems)
 	state = GameState.data
+	var saved_task: Variant = state.get("active_task", {})
+	if saved_task is Dictionary and not saved_task.is_empty():
+		active_task = saved_task
+		task_progress = maxf(0.0, float(Time.get_unix_time_from_system() - float(state.get("active_started_at", Time.get_unix_time_from_system()))))
 
 func _ensure_default_unlocks() -> void:
 	GameState._ensure_default_unlocks(systems)
@@ -138,7 +144,9 @@ func _build_game() -> void:
 	reward_popup.build()
 	game_layer.add_child(reward_popup)
 	reward_popup.choice_selected.connect(_choose_reward)
-	_refresh_navigation()
+	action_indicator = UiFactory.label("IDLE", 11, MUTED)
+	action_indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	game_layer.add_child(action_indicator)
 	_select_system("gathering")
 
 func _open_menu() -> void:
@@ -198,7 +206,10 @@ func _start_activity(system_id: String, activity: Dictionary) -> void:
 	last_activity = {"system_id": system_id, "activity": activity}
 	active_task = last_activity.duplicate()
 	task_progress = 0.0
+	state["active_task"] = active_task
+	state["active_started_at"] = Time.get_unix_time_from_system()
 	activity_panel.active_bar.value = 0.0
+	_save_state()
 	_show_toast("%s begins." % activity.name)
 	_refresh_system()
 
@@ -223,7 +234,7 @@ func _finish_activity() -> void:
 		if _roll_critical(system_id):
 			amount *= 2
 		_add_currency(reward.currency, amount)
-	var xp_gain: int = maxi(1, roundi(float(activity.xp) * _xp_multiplier(system_id)))
+	var xp_gain: int = maxi(1, int(activity.xp))
 	system_state.xp = int(system_state.xp) + xp_gain
 	state["overall_xp"] = int(state.get("overall_xp", 0)) + xp_gain
 	system_state.actions = int(system_state.actions) + 1
@@ -232,17 +243,16 @@ func _finish_activity() -> void:
 		system_state.xp = int(system_state.xp) - _xp_needed(int(system_state.level))
 		system_state.level = int(system_state.level) + 1
 		levelled = true
-		var system: Dictionary = _get_system(system_id)
-		var choices: Array = system.get("rewards", {}).get(str(system_state.level), []) as Array
-		if not choices.is_empty():
-			pending_reward = {"system_id": system_id, "level": system_state.level, "choices": choices}
-			active_task = {}
-			_show_toast("A new understanding arrives.")
-			break
-	if not levelled:
+	if levelled:
+		_show_toast("%s reaches level %02d. Output rises. Time shortens." % [system_id.capitalize(), int(system_state.level)])
+	else:
 		_show_toast("%s  +%d XP" % [activity.name, xp_gain])
-	var should_repeat: bool = pending_reward.is_empty() and repeat_enabled and not last_activity.is_empty() and _can_afford(last_activity.activity)
+	var should_repeat: bool = repeat_enabled and not last_activity.is_empty() and _can_afford(last_activity.activity)
 	active_task = {}
+	state["active_task"] = {}
+	state.erase("active_started_at")
+	action_indicator.text = "IDLE"
+	action_indicator.add_theme_color_override("font_color", MUTED)
 	_save_state()
 	_refresh_navigation()
 	_refresh_system()
@@ -268,6 +278,13 @@ func _choose_reward(choice: Dictionary) -> void:
 
 func _format_flow(activity: Dictionary) -> String:
 	return SimulationRules.format_flow(activity)
+
+func _set_action_indicator(activity: Dictionary, progress: float, duration: float) -> void:
+	if not action_indicator:
+		return
+	var remaining: int = maxi(0, ceili(duration - progress))
+	action_indicator.text = "ACTIVE  %s  %02ds" % [str(activity.get("name", "ACTION")).to_upper(), remaining]
+	action_indicator.add_theme_color_override("font_color", REED)
 
 func _get_system(system_id: String) -> Dictionary:
 	for raw_system in systems:
@@ -307,13 +324,12 @@ func _xp_needed(level: int) -> int:
 	return SimulationRules.xp_needed(level)
 
 func _duration_multiplier(system_id: String) -> float:
-	return SimulationRules.duration_multiplier(state.effects, system_id)
-
-func _xp_multiplier(system_id: String) -> float:
-	return SimulationRules.xp_multiplier(state.effects, system_id)
+	var level: int = int(state.systems.get(system_id, {}).get("level", 1))
+	return SimulationRules.duration_multiplier(state.effects, system_id) * pow(0.99, level - 1)
 
 func _yield_multiplier(system_id: String) -> float:
-	return SimulationRules.yield_multiplier(state.effects, system_id)
+	var level: int = int(state.systems.get(system_id, {}).get("level", 1))
+	return SimulationRules.yield_multiplier(state.effects, system_id) * pow(1.01, level - 1)
 
 func _roll_critical(system_id: String) -> bool:
 	return SimulationRules.critical_roll(state.effects, system_id, randf())
@@ -360,4 +376,6 @@ func _layout() -> void:
 		menu_panel.custom_minimum_size = Vector2(minf(500.0, width - 28.0), minf(440.0, height - 28.0))
 	reward_popup.position = Vector2(margin + 20.0, height * 0.44)
 	reward_popup.size = Vector2(maxf(260.0, width - margin * 2.0 - 40.0), 180.0)
+	action_indicator.position = Vector2(margin, height - margin - 24.0)
+	action_indicator.size = Vector2(width - margin * 2.0, 20.0)
 	queue_redraw()

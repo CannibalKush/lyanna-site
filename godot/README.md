@@ -34,10 +34,11 @@ The view does not own persistent state.
 
 ## Current loop
 
-- Choose an activity.
-- Watch it advance over time.
-- Gain currency and system XP.
-- Choose a reward when a system levels.
+- Actions use saved wall-clock time, so browser tab changes do not lose progress.
+- System levels give recursive bonuses: `x1.01` output and `x0.99` action time.
+- Activity labels use `TIME | +[RESOURCE] | -[RESOURCE]`.
+- Activity tooltips show resource names and amounts.
+- Progress bars use subtle pulse motion.
 - Unlock the next system.
 - Toggle automatic repetition after an activity completes.
 - Progress saves to `user://ego_incremental.json`.
@@ -50,7 +51,7 @@ This keeps Web and mobile export options open.
 Export a new version with:
 
 ```sh
-VERSION=v12
+VERSION=v13
 mkdir -p "public/godot/$VERSION"
 /Applications/Godot.app/Contents/MacOS/Godot \
   --headless --path godot \
