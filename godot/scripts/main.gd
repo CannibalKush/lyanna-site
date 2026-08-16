@@ -174,8 +174,7 @@ func _select_system(system_id: String) -> void:
 		_show_toast("This door is still closed.")
 		return
 	active_system_id = system_id
-	active_task = {}
-	task_progress = 0.0
+	task_progress = maxf(task_progress, 0.0)
 	_refresh_navigation()
 	_refresh_system()
 
