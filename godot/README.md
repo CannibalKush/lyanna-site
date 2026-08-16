@@ -17,8 +17,12 @@ Run the main scene.
 - `scripts/core/game_state.gd` owns hoisted save state through the `GameState` autoload.
 - `scripts/core/content_database.gd` loads game content.
 - `scripts/core/simulation_rules.gd` contains pure progression and effect rules.
+- `scripts/ui/game_hud.gd` owns day, currency, and path XP display.
+- `scripts/ui/system_navigation.gd` owns system navigation.
+- `scripts/ui/activity_panel.gd` owns activity selection and active progress.
+- `scripts/ui/reward_popup.gd` owns level-up choices.
 - `scripts/ui/ui_factory.gd` creates shared controls and styles.
-- `scripts/main.gd` coordinates input, state changes, and view updates.
+- `scripts/main.gd` coordinates commands, state changes, and view updates.
 
 The intended flow is:
 
@@ -46,7 +50,7 @@ This keeps Web and mobile export options open.
 Export a new version with:
 
 ```sh
-VERSION=v11
+VERSION=v12
 mkdir -p "public/godot/$VERSION"
 /Applications/Godot.app/Contents/MacOS/Godot \
   --headless --path godot \

@@ -29,30 +29,10 @@ var toast_text := ""
 var menu_layer: Control
 var menu_panel: PanelContainer
 var game_layer: Control
-var nav_panel: PanelContainer
-var content_panel: PanelContainer
-var top_bar: PanelContainer
-var nav_list: VBoxContainer
-var content_box: VBoxContainer
-var system_title: Label
-var system_description: Label
-var system_currency: Label
-var activity_list: VBoxContainer
-var level_label: Label
-var xp_label: Label
-var xp_bar: ProgressBar
-var active_label: Label
-var active_detail: Label
-var active_bar: ProgressBar
-var reward_panel: PanelContainer
-var reward_box: VBoxContainer
-var repeat_button: Button
-var toast_label: Label
-var currency_label: Label
-var day_label: Label
-var overall_label: Label
-var overall_bar: ProgressBar
-var menu_button: Button
+var hud: GameHud
+var navigation: SystemNavigation
+var activity_panel: ActivityPanel
+var reward_popup: RewardPopup
 
 func _ready() -> void:
 	_load_content()
@@ -69,15 +49,14 @@ func _process(delta: float) -> void:
 	if toast_timer > 0.0:
 		toast_timer -= delta
 		if toast_timer <= 0.0:
-			toast_label.text = ""
+			activity_panel.show_toast("")
 	if not active_task.is_empty() and pending_reward.is_empty():
 		var system_id: String = active_task.get("system_id", "")
 		var activity: Dictionary = active_task.get("activity", {})
 		var duration: float = float(activity.get("duration", 1.0)) * _duration_multiplier(system_id)
 		task_progress += delta
 		var percent: float = minf(100.0, task_progress / duration * 100.0)
-		active_bar.value = percent
-		active_label.text = "%s   %02d%%" % [activity.get("name", "Working"), int(percent)]
+		activity_panel.update_active(active_task, percent)
 		if task_progress >= duration:
 			_finish_activity()
 	_update_world()
@@ -142,101 +121,25 @@ func _build_game() -> void:
 	game_layer = Control.new()
 	game_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(game_layer)
-	top_bar = PanelContainer.new()
-	top_bar.add_theme_stylebox_override("panel", UiFactory.style(PANEL, LINE, 1, 12))
-	game_layer.add_child(top_bar)
-	var top_box := HBoxContainer.new()
-	top_bar.add_child(top_box)
-	day_label = UiFactory.label("DAY 01", 13, REED)
-	top_box.add_child(day_label)
-	var top_space := Control.new()
-	top_space.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top_box.add_child(top_space)
-	currency_label = UiFactory.label("", 12, MUTED)
-	top_box.add_child(currency_label)
-	menu_button = UiFactory.button("MENU", MUTED, BG)
-	menu_button.custom_minimum_size = Vector2(72, 34)
-	menu_button.pressed.connect(_open_menu)
-	top_box.add_child(menu_button)
-	overall_label = UiFactory.label("PATH XP  /  0", 10, REED)
-	overall_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	game_layer.add_child(overall_label)
-	overall_bar = ProgressBar.new()
-	overall_bar.show_percentage = false
-	overall_bar.add_theme_stylebox_override("background", UiFactory.style(Color("#302c2b"), Color.TRANSPARENT, 0, 6))
-	overall_bar.add_theme_stylebox_override("fill", UiFactory.style(CLAY, Color.TRANSPARENT, 0, 6))
-	game_layer.add_child(overall_bar)
-	nav_panel = PanelContainer.new()
-	nav_panel.add_theme_stylebox_override("panel", UiFactory.style(PANEL, LINE, 1, 12))
-	game_layer.add_child(nav_panel)
-	var nav_box := VBoxContainer.new()
-	nav_box.add_theme_constant_override("separation", 7)
-	nav_panel.add_child(nav_box)
-	nav_box.add_child(UiFactory.label("THE SYSTEMS", 11, REED))
-	nav_list = VBoxContainer.new()
-	nav_list.add_theme_constant_override("separation", 5)
-	nav_box.add_child(nav_list)
-	var nav_hint := UiFactory.label("Unlock the next door by\nlearning the one before it.", 11, MUTED)
-	nav_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	nav_box.add_child(nav_hint)
-
-	content_panel = PanelContainer.new()
-	content_panel.add_theme_stylebox_override("panel", UiFactory.style(PANEL_RAISED, LINE, 1, 12))
-	game_layer.add_child(content_panel)
-	content_box = VBoxContainer.new()
-	content_box.add_theme_constant_override("separation", 12)
-	content_panel.add_child(content_box)
-	var header := HBoxContainer.new()
-	content_box.add_child(header)
-	system_title = UiFactory.label("", 28, INK)
-	header.add_child(system_title)
-	var header_space := Control.new()
-	header_space.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(header_space)
-	level_label = UiFactory.label("", 14, REED)
-	header.add_child(level_label)
-	system_description = UiFactory.label("", 14, MUTED)
-	system_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	content_box.add_child(system_description)
-	system_currency = UiFactory.label("", 12, REED)
-	content_box.add_child(system_currency)
-	var line := HSeparator.new()
-	content_box.add_child(line)
-	content_box.add_child(UiFactory.label("CHOOSE AN ACTIVITY", 11, REED))
-	activity_list = VBoxContainer.new()
-	activity_list.add_theme_constant_override("separation", 7)
-	content_box.add_child(activity_list)
-	var active_line := HSeparator.new()
-	content_box.add_child(active_line)
-	active_label = UiFactory.label("No activity selected", 18, INK)
-	content_box.add_child(active_label)
-	active_detail = UiFactory.label("Choose a system activity to begin.", 12, MUTED)
-	active_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	content_box.add_child(active_detail)
-	active_bar = ProgressBar.new()
-	active_bar.custom_minimum_size.y = 16
-	active_bar.show_percentage = false
-	active_bar.add_theme_stylebox_override("background", UiFactory.style(Color("#302c2b"), Color.TRANSPARENT, 0, 8))
-	active_bar.add_theme_stylebox_override("fill", UiFactory.style(REED, Color.TRANSPARENT, 0, 8))
-	content_box.add_child(active_bar)
-	repeat_button = UiFactory.button("AUTO REPEAT: OFF", MUTED, BG)
-	repeat_button.pressed.connect(_toggle_repeat)
-	content_box.add_child(repeat_button)
-	toast_label = UiFactory.label("", 13, REED)
-	toast_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	content_box.add_child(toast_label)
-	_build_reward_panel()
+	hud = GameHud.new()
+	hud.build()
+	game_layer.add_child(hud)
+	hud.menu_pressed.connect(_open_menu)
+	navigation = SystemNavigation.new()
+	navigation.build()
+	game_layer.add_child(navigation)
+	navigation.system_selected.connect(_select_system)
+	activity_panel = ActivityPanel.new()
+	activity_panel.build()
+	game_layer.add_child(activity_panel)
+	activity_panel.activity_selected.connect(_start_activity)
+	activity_panel.repeat_toggled.connect(_toggle_repeat)
+	reward_popup = RewardPopup.new()
+	reward_popup.build()
+	game_layer.add_child(reward_popup)
+	reward_popup.choice_selected.connect(_choose_reward)
 	_refresh_navigation()
 	_select_system("gathering")
-
-func _build_reward_panel() -> void:
-	reward_panel = PanelContainer.new()
-	reward_panel.visible = false
-	reward_panel.add_theme_stylebox_override("panel", UiFactory.style(Color("#302b1d"), REED, 1, 12))
-	game_layer.add_child(reward_panel)
-	reward_box = VBoxContainer.new()
-	reward_box.add_theme_constant_override("separation", 8)
-	reward_panel.add_child(reward_box)
 
 func _open_menu() -> void:
 	_show_menu()
@@ -269,65 +172,24 @@ func _select_system(system_id: String) -> void:
 	_refresh_system()
 
 func _refresh_navigation() -> void:
-	if not nav_list:
-		return
-	_ensure_default_unlocks()
-	for child in nav_list.get_children():
-		child.queue_free()
-	for raw_system in systems:
-		var system: Dictionary = raw_system
-		var unlocked := _is_system_unlocked(system.id)
-		var level: int = int(state.systems.get(system.id, {}).get("level", 1))
-		var button := UiFactory.button("%s  %s  %s" % [system.get("glyph", "·"), system.name, "LV %02d" % level if unlocked else "LOCKED"], REED if unlocked else MUTED, PANEL if system.id != active_system_id else Color("#3b3527"))
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.disabled = not unlocked
-		button.tooltip_text = system.description
-		button.pressed.connect(_select_system.bind(system.id))
-		nav_list.add_child(button)
+	if navigation:
+		_ensure_default_unlocks()
+		navigation.update_systems(systems, state, active_system_id)
 
 func _refresh_system() -> void:
 	var system: Dictionary = _get_system(active_system_id)
 	if system.is_empty():
 		return
-	var system_state: Dictionary = state.systems[active_system_id]
-	system_title.text = "%s  %s" % [system.get("glyph", "·"), system.name]
-	system_description.text = system.description
-	system_currency.text = "SYSTEM CURRENCY  /  %s" % str(system.currency).to_upper()
-	level_label.text = "LEVEL %02d" % int(system_state.level)
-	for child in activity_list.get_children():
-		child.queue_free()
-	for raw_activity in system.activities:
-		var activity: Dictionary = raw_activity
-		var key := "%s:%s" % [active_system_id, activity.id]
-		var unlocked := bool(state.unlocked_activities.get(key, false))
-		var can_start := unlocked and _can_afford(activity)
-		var label_text := "%s  |  %s  |  %s" % [activity.name, _format_flow(activity), "READY" if can_start else "NEEDS MATERIALS"]
-		var button := UiFactory.button(label_text, INK if unlocked else MUTED, PANEL)
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.disabled = not can_start or not pending_reward.is_empty()
-		button.tooltip_text = activity.detail
-		button.pressed.connect(_start_activity.bind(active_system_id, activity))
-		activity_list.add_child(button)
-	if active_task.is_empty():
-		active_label.text = "No activity selected"
-		active_detail.text = "Choose an activity to begin."
-		active_bar.value = 0.0
-	_update_world()
+	activity_panel.update_system(system, state, pending_reward, active_system_id, _can_afford, _format_flow)
+	activity_panel.update_active(active_task, 0.0)
 	_refresh_reward_panel()
 
 func _update_world() -> void:
-	if not currency_label:
-		return
-	var currencies: Dictionary = state.currencies
-	currency_label.text = "R %02d  ·  W %02d  ·  C %02d  ·  M %02d  ·  F %02d  ·  S %02d" % [currencies.reeds, currencies.water, currencies.clay, currencies.calm, currencies.focus, currencies.silver]
-	var path_xp: int = int(state.get("overall_xp", 0))
-	var path_level: int = path_xp / 100
-	overall_label.text = "PATH XP  /  RANK %02d  /  %03d%%" % [path_level, path_xp % 100]
-	overall_bar.value = float(path_xp % 100)
-	day_label.text = "DAY %02d" % int(state.day)
+	if hud:
+		hud.update_state(state)
 	if not active_task.is_empty():
 		var activity: Dictionary = active_task.activity
-		active_detail.text = activity.detail
+		activity_panel.active_detail.text = activity.detail
 
 func _start_activity(system_id: String, activity: Dictionary) -> void:
 	if not _can_afford(activity) or not pending_reward.is_empty() or not active_task.is_empty():
@@ -336,7 +198,7 @@ func _start_activity(system_id: String, activity: Dictionary) -> void:
 	last_activity = {"system_id": system_id, "activity": activity}
 	active_task = last_activity.duplicate()
 	task_progress = 0.0
-	active_bar.value = 0.0
+	activity_panel.active_bar.value = 0.0
 	_show_toast("%s begins." % activity.name)
 	_refresh_system()
 
@@ -345,8 +207,7 @@ func _toggle_repeat() -> void:
 		_show_toast("Complete an activity before automating it.")
 		return
 	repeat_enabled = not repeat_enabled
-	repeat_button.text = "AUTO REPEAT: %s" % ("ON" if repeat_enabled else "OFF")
-	repeat_button.add_theme_color_override("font_color", REED if repeat_enabled else MUTED)
+	activity_panel.set_repeat(repeat_enabled)
 	_show_toast("The routine is %s." % ("awake" if repeat_enabled else "quiet"))
 	if repeat_enabled and active_task.is_empty() and pending_reward.is_empty():
 		_start_activity(last_activity.system_id, last_activity.activity)
@@ -389,22 +250,8 @@ func _finish_activity() -> void:
 		_start_activity(last_activity.system_id, last_activity.activity)
 
 func _refresh_reward_panel() -> void:
-	if reward_panel == null:
-		return
-	reward_panel.visible = not pending_reward.is_empty()
-	for child in reward_box.get_children():
-		child.queue_free()
-	if pending_reward.is_empty():
-		return
-	reward_box.add_child(UiFactory.label("LEVEL %02d UNDERSTANDING" % int(pending_reward.level), 13, REED))
-	reward_box.add_child(UiFactory.label("Choose what this system teaches you.", 12, MUTED))
-	var choices: Array = pending_reward.choices
-	for raw_choice in choices:
-		var choice: Dictionary = raw_choice
-		var button := UiFactory.button("%s  /  %s" % [choice.label, choice.detail], INK, PANEL)
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.pressed.connect(_choose_reward.bind(choice))
-		reward_box.add_child(button)
+	if reward_popup:
+		reward_popup.update_reward(pending_reward)
 
 func _choose_reward(choice: Dictionary) -> void:
 	var system_id: String = pending_reward.system_id
@@ -474,8 +321,8 @@ func _roll_critical(system_id: String) -> bool:
 func _show_toast(message: String) -> void:
 	toast_text = message
 	toast_timer = 4.0
-	if toast_label:
-		toast_label.text = message
+	if activity_panel:
+		activity_panel.show_toast(message)
 
 func _show_menu() -> void:
 	menu_layer.visible = true
@@ -492,34 +339,25 @@ func _layout() -> void:
 	var height: float = size.y
 	var margin: float = 18.0 if width >= 760.0 else 10.0
 	var top_height: float = 54.0
-	top_bar.position = Vector2(margin, margin)
-	top_bar.size = Vector2(width - margin * 2.0, top_height)
-	var top_child := top_bar.get_child(0) as Control
-	if top_child:
-		top_child.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	hud.layout(width, margin, top_height)
 	var top_y: float = margin + top_height + 42.0
-	if overall_bar:
-		overall_bar.position = Vector2(margin, margin + top_height + 8.0)
-		overall_bar.size = Vector2(width - margin * 2.0, 10.0)
-		overall_label.position = Vector2(margin, margin + top_height - 4.0)
-	overall_label.size = Vector2(width - margin * 2.0, 18.0)
 	var compact_width: bool = width < 800.0
 	var short_screen: bool = height < 560.0
 	var desktop_layout: bool = not compact_width or (width >= 640.0 and short_screen)
 	if desktop_layout:
 		var nav_width: float = 280.0 if width >= 800.0 else 220.0
-		nav_panel.position = Vector2(margin, top_y)
-		nav_panel.size = Vector2(nav_width, height - top_y - margin)
-		content_panel.position = Vector2(margin + nav_width + 14.0, top_y)
-		content_panel.size = Vector2(width - margin * 2.0 - nav_width - 14.0, height - top_y - margin)
+		navigation.position = Vector2(margin, top_y)
+		navigation.size = Vector2(nav_width, height - top_y - margin)
+		activity_panel.position = Vector2(margin + nav_width + 14.0, top_y)
+		activity_panel.size = Vector2(width - margin * 2.0 - nav_width - 14.0, height - top_y - margin)
 	else:
 		var nav_height: float = 252.0
-		nav_panel.position = Vector2(margin, top_y)
-		nav_panel.size = Vector2(width - margin * 2.0, nav_height)
-		content_panel.position = Vector2(margin, top_y + nav_height + 12.0)
-		content_panel.size = Vector2(width - margin * 2.0, maxf(220.0, height - top_y - nav_height - margin - 12.0))
+		navigation.position = Vector2(margin, top_y)
+		navigation.size = Vector2(width - margin * 2.0, nav_height)
+		activity_panel.position = Vector2(margin, top_y + nav_height + 12.0)
+		activity_panel.size = Vector2(width - margin * 2.0, maxf(220.0, height - top_y - nav_height - margin - 12.0))
 	if menu_panel:
 		menu_panel.custom_minimum_size = Vector2(minf(500.0, width - 28.0), minf(440.0, height - 28.0))
-	reward_panel.position = Vector2(margin + 20.0, height * 0.44)
-	reward_panel.size = Vector2(maxf(260.0, width - margin * 2.0 - 40.0), 180.0)
+	reward_popup.position = Vector2(margin + 20.0, height * 0.44)
+	reward_popup.size = Vector2(maxf(260.0, width - margin * 2.0 - 40.0), 180.0)
 	queue_redraw()
